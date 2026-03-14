@@ -5,7 +5,9 @@
 `tcb` is a single Go binary that snapshots every tool in your developer environment — language runtimes, package managers, version managers, infra tooling, git config, shell, and editor — and turns that snapshot into a set of reproducible artifacts you can commit to GitHub, share with a team, or spin up inside a container.
 
 ---
-
+<p align="center">
+<img src="assets/tcp.png" width="830" alt="CLI Tool Screeshot">
+</p>
 ## Features
 
 - **Full-suite scanner** — 60+ tools across languages, package managers, version managers, and infra/DevOps tooling
@@ -25,18 +27,22 @@ brew install tool-chain-brain/tap/tcb
 
 ### go install
 ```sh
-go install github.com/tool-chain-brain/tcb/cmd/tcb@latest
+go install github.com/guiperry/tool-chain-brain/tcb/cmd/tcb@latest
 ```
 
 ### Build from source
 ```sh
-git clone https://github.com/tool-chain-brain/tcb
+git clone https://github.com/guiperry/tool-chain-brain/tcb
+
 cd tcb
+
+go mod tidy         # downloads go dependencies
+
 make install        # builds and copies tcb to $(go env GOPATH)/bin
 ```
 
 ### Direct binary download
-Grab the latest release for your platform from the [Releases page](https://github.com/tool-chain-brain/tcb/releases).
+Grab the latest release for your platform from the [Releases page](https://github.com/guiperry/tool-chain-brain/tcb/releases).
 
 ---
 
@@ -306,7 +312,7 @@ editor:
 
 ```sh
 # Clone
-git clone https://github.com/tool-chain-brain/tcb && cd tcb
+git clone https://github.com/guiperry/tool-chain-brain/tcb && cd tcb
 
 # Install dependencies
 make deps
