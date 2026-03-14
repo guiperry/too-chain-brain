@@ -231,6 +231,42 @@ docker run -it --rm -v $(pwd):/workspace devenv
 	}
 
 	content += fmt.Sprintf(`
+## Compilers — C / C++ (%d)
+
+| Name | Version | Variant |
+|---|---|---|
+`, len(tc.Compilers))
+
+	for _, t := range tc.Compilers {
+		variant := ""
+		if t.Extra != nil {
+			variant = t.Extra["variant"]
+		}
+		content += fmt.Sprintf("| `%s` | %s | %s |\n", t.Name, t.Version, variant)
+	}
+
+	content += fmt.Sprintf(`
+## Cross-Compilers (%d)
+
+| Name | Version | Target / Notes |
+|---|---|---|
+`, len(tc.CrossCompilers))
+
+	for _, t := range tc.CrossCompilers {
+		note := ""
+		if t.Extra != nil {
+			if v, ok := t.Extra["target"]; ok {
+				note = v
+			} else if v, ok := t.Extra["macos_sdk"]; ok {
+				note = "macOS SDK " + v
+			} else if v, ok := t.Extra["note"]; ok {
+				note = v
+			}
+		}
+		content += fmt.Sprintf("| `%s` | %s | %s |\n", t.Name, t.Version, note)
+	}
+
+	content += fmt.Sprintf(`
 ## Package Managers (%d)
 
 | Name | Version |

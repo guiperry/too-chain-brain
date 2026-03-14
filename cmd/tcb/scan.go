@@ -21,7 +21,7 @@ func scanCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "scan",
 		Short: "Scan the system's developer toolchain",
-		Long:  "Probes all installed language runtimes, package managers, version managers, infrastructure tools, git config, shell, and editor settings.",
+		Long:  "Probes all installed language runtimes, compilers, package managers, version managers, infrastructure tools, cross-compilers, git config, shell, and editor settings.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			spin := spinner.New(spinner.CharSets[14], 80*time.Millisecond)
 			if !quiet {
@@ -40,8 +40,9 @@ func scanCmd() *cobra.Command {
 
 			if !quiet {
 				printScanSummary(tc.Meta.Hostname, tc.Meta.OS, tc.Meta.Arch,
-					len(tc.Languages), len(tc.PackageManagers),
-					len(tc.VersionManagers), len(tc.InfraTools))
+					len(tc.Languages), len(tc.Compilers),
+					len(tc.PackageManagers), len(tc.VersionManagers),
+					len(tc.InfraTools), len(tc.CrossCompilers))
 			}
 
 			if !noSave {
@@ -67,7 +68,7 @@ func scanCmd() *cobra.Command {
 	return cmd
 }
 
-func printScanSummary(hostname, goos, arch string, langs, pkgMgrs, verMgrs, infra int) {
+func printScanSummary(hostname, goos, arch string, langs, compilers, pkgMgrs, verMgrs, infra, crossComp int) {
 	bold := color.New(color.Bold)
 	cyan := color.New(color.FgCyan)
 
@@ -83,18 +84,19 @@ func printScanSummary(hostname, goos, arch string, langs, pkgMgrs, verMgrs, infr
 		if count == 0 {
 			icon = color.HiBlackString("·")
 		}
-		fmt.Printf("  %s %-22s %s\n", icon, color.HiBlackString(label), cyan.Sprintf("%d found", count))
+		fmt.Printf("  %s %-24s %s\n", icon, color.HiBlackString(label), cyan.Sprintf("%d found", count))
 	}
 
 	printStat("Language runtimes", langs)
+	printStat("Compilers (C/C++)", compilers)
 	printStat("Package managers", pkgMgrs)
 	printStat("Version managers", verMgrs)
 	printStat("Infra / DevOps tools", infra)
+	printStat("Cross-compilers", crossComp)
 
 	fmt.Println()
 
-	// Warn if nothing was found at all
-	total := langs + pkgMgrs + verMgrs + infra
+	total := langs + compilers + pkgMgrs + verMgrs + infra + crossComp
 	if total == 0 {
 		_, _ = fmt.Fprintln(os.Stderr, color.YellowString("  ⚠  No tools detected. Are they on your PATH?"))
 	}

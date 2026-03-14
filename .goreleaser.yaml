@@ -1,0 +1,128 @@
+# ============================================================
+#  Tool-Chain-Brain — .goreleaser.yaml
+#  Docs: https://goreleaser.com
+# ============================================================
+version: 2
+
+project_name: tcb
+
+before:
+  hooks:
+    - go mod tidy
+    - go vet ./...
+
+builds:
+  - id: tcb
+    main: ./cmd/tcb
+    binary: tcb
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X 'github.com/tool-chain-brain/tcb/internal/scanner.TCBVersion={{ .Version }}'
+    flags:
+      - -trimpath
+
+archives:
+  - id: tcb
+    builds:
+      - tcb
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "Merge pull request"
+      - "Merge branch"
+  groups:
+    - title: "🚀 Features"
+      regexp: "^feat"
+      order: 0
+    - title: "🐛 Bug Fixes"
+      regexp: "^fix"
+      order: 1
+    - title: "⚡ Performance"
+      regexp: "^perf"
+      order: 2
+    - title: "🔒 Security"
+      regexp: "^sec"
+      order: 3
+
+release:
+  github:
+    owner: tool-chain-brain
+    name: tcb
+  name_template: "v{{ .Version }}"
+  footer: |
+    ## Installation
+
+    ### macOS / Linux (Homebrew)
+    ```sh
+    brew install tool-chain-brain/tap/tcb
+    ```
+
+    ### go install
+    ```sh
+    go install github.com/tool-chain-brain/tcb/cmd/tcb@v{{ .Version }}
+    ```
+
+    ### Direct download
+    Pick the right archive for your platform from the assets below.
+
+brews:
+  - name: tcb
+    repository:
+      owner: tool-chain-brain
+      name: homebrew-tap
+    homepage: "https://github.com/tool-chain-brain/tcb"
+    description: "Scan, snapshot, and replicate your developer toolchain"
+    license: "MIT"
+    commit_author:
+      name: tcb-bot
+      email: bot@tool-chain-brain.dev
+    install: |
+      bin.install "tcb"
+    test: |
+      system "#{bin}/tcb", "--version"
+
+nfpms:
+  - id: tcb-packages
+    package_name: tcb
+    homepage: "https://github.com/tool-chain-brain/tcb"
+    description: "Scan, snapshot, and replicate your developer toolchain"
+    maintainer: "Tool-Chain-Brain <bot@tool-chain-brain.dev>"
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin

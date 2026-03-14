@@ -31,9 +31,11 @@ func ScanSystem() (*models.Toolchain, error) {
 	}
 
 	tc.Languages = ScanLanguages()
+	tc.Compilers = ScanCompilers()
 	tc.PackageManagers = ScanPackageManagers()
 	tc.VersionManagers = ScanVersionManagers()
 	tc.InfraTools = ScanInfraTools()
+	tc.CrossCompilers = ScanCrossCompilers()
 	tc.Git = ScanGit()
 	tc.Shell = ScanShell()
 	tc.Editor = ScanEditor()

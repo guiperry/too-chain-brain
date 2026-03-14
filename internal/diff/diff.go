@@ -13,9 +13,11 @@ func Compare(old, current *models.Toolchain) models.DiffResult {
 		cur []models.Tool
 	}{
 		"languages":        {old.Languages, current.Languages},
+		"compilers":        {old.Compilers, current.Compilers},
 		"package_managers": {old.PackageManagers, current.PackageManagers},
 		"version_managers": {old.VersionManagers, current.VersionManagers},
 		"infra_tools":      {old.InfraTools, current.InfraTools},
+		"cross_compilers":  {old.CrossCompilers, current.CrossCompilers},
 	}
 
 	for category, pair := range categories {

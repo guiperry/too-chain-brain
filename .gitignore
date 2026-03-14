@@ -8,6 +8,31 @@
 *.so
 *.dylib
 
+# Binaries
+tcb
+tcb.exe
+dist/
+
+# Test output
+coverage.out
+coverage.html
+
+# Temp export directories
+tcb-export/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+vendor/
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -19,3 +44,5 @@
 
 # Go workspace file
 go.work
+tcb
+tcb

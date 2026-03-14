@@ -54,6 +54,121 @@ already_installed() {
 }
 
 # ============================================================
+# Compilers — C / C++
+# ============================================================
+{{range .Compilers -}}
+{{- if eq .Name "gcc"}}
+if ! already_installed gcc; then
+  info "Installing GCC…"
+  if [ "$OS" = "Darwin" ]; then
+    brew install gcc
+  else
+    install_pkg gcc
+  fi
+fi
+{{- end}}
+{{- if eq .Name "g++"}}
+if ! already_installed g++; then
+  info "Installing G++…"
+  if [ "$OS" = "Darwin" ]; then
+    brew install gcc   # g++ ships with gcc on macOS via brew
+  else
+    install_pkg g++
+  fi
+fi
+{{- end}}
+{{- if eq .Name "clang"}}
+if ! already_installed clang; then
+  info "Installing Clang…"
+  if [ "$OS" = "Darwin" ]; then
+    xcode-select --install 2>/dev/null || true
+  else
+    install_pkg clang
+  fi
+fi
+{{- end}}
+{{- if eq .Name "nasm"}}
+if ! already_installed nasm; then
+  info "Installing NASM assembler…"
+  install_pkg nasm
+fi
+{{- end}}
+{{- if eq .Name "musl-gcc"}}
+if ! already_installed musl-gcc; then
+  info "Installing musl-gcc…"
+  install_pkg musl-tools
+fi
+{{- end}}
+{{end}}
+
+# ============================================================
+# Cross-Compilers
+# ============================================================
+{{range .CrossCompilers -}}
+{{- if eq .Name "osxcross"}}
+# osxcross — cross-compile for macOS
+if [ ! -d "${OSXCROSS_ROOT:-$HOME/osxcross}" ]; then
+  info "osxcross not found. To install:"
+  info "  git clone https://github.com/tpoechtrager/osxcross"
+  info "  Place a MacOSX*.sdk.tar.xz in osxcross/tarballs/"
+  info "  Then run: osxcross/build.sh"
+  warn "Skipping osxcross — manual SDK acquisition required (Apple license)"
+fi
+{{- end}}
+{{- if hasPrefix .Name "mingw-w64"}}
+# mingw-w64 — cross-compile for Windows
+if ! already_installed x86_64-w64-mingw32-gcc; then
+  info "Installing mingw-w64…"
+  if [ "$OS" = "Darwin" ]; then
+    brew install mingw-w64
+  else
+    install_pkg mingw-w64
+  fi
+fi
+{{- end}}
+{{- if eq .Name "wine"}}
+# Wine — run Windows binaries
+if ! already_installed wine; then
+  info "Installing Wine…"
+  if [ "$OS" = "Darwin" ]; then
+    brew install --cask wine-stable
+  else
+    sudo dpkg --add-architecture i386 2>/dev/null || true
+    install_pkg wine
+  fi
+fi
+{{- end}}
+{{- if eq .Name "wine64"}}
+if ! already_installed wine64; then
+  info "Installing Wine64…"
+  if [ "$OS" = "Darwin" ]; then
+    brew install --cask wine-stable
+  else
+    install_pkg wine64
+  fi
+fi
+{{- end}}
+{{- if eq .Name "emcc"}}
+# Emscripten — compile C/C++ to WebAssembly
+if ! already_installed emcc; then
+  info "Installing Emscripten…"
+  git clone https://github.com/emscripten-core/emsdk.git "$HOME/emsdk"
+  "$HOME/emsdk/emsdk" install latest
+  "$HOME/emsdk/emsdk" activate latest
+  # shellcheck source=/dev/null
+  source "$HOME/emsdk/emsdk_env.sh"
+fi
+{{- end}}
+{{- if eq .Name "android-ndk"}}
+# Android NDK
+if [ -z "${ANDROID_NDK_ROOT:-}" ] && [ -z "${ANDROID_NDK_HOME:-}" ]; then
+  warn "Android NDK not found — install via Android Studio SDK Manager"
+  warn "  or: sdkmanager 'ndk;{{.Version}}'"
+fi
+{{- end}}
+{{end}}
+
+# ============================================================
 # Version Managers
 # ============================================================
 {{range .VersionManagers -}}
@@ -414,8 +529,9 @@ func WriteSetupSh(tc *models.Toolchain, outDir string) (string, error) {
 	}
 
 	funcMap := template.FuncMap{
-		"join":  strings.Join,
-		"lower": strings.ToLower,
+		"join":      strings.Join,
+		"lower":     strings.ToLower,
+		"hasPrefix": strings.HasPrefix,
 	}
 
 	tmpl, err := template.New("setup").Funcs(funcMap).Parse(setupShTemplate)

@@ -6,9 +6,11 @@ import "time"
 type Toolchain struct {
 	Meta            Meta         `yaml:"meta"`
 	Languages       []Tool       `yaml:"languages,omitempty"`
+	Compilers       []Tool       `yaml:"compilers,omitempty"`
 	PackageManagers []Tool       `yaml:"package_managers,omitempty"`
 	VersionManagers []Tool       `yaml:"version_managers,omitempty"`
 	InfraTools      []Tool       `yaml:"infra_tools,omitempty"`
+	CrossCompilers  []Tool       `yaml:"cross_compilers,omitempty"`
 	Git             GitConfig    `yaml:"git"`
 	Shell           ShellConfig  `yaml:"shell"`
 	Editor          EditorConfig `yaml:"editor"`
